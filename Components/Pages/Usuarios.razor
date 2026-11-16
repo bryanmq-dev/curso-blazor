@@ -6,7 +6,6 @@
 @inject UserManager<ApplicationUser> _userService
 @inject RoleManager<IdentityRole> _roleService
 
-@attribute [Authorize(Roles = "Admin")]
 
 <EditForm FormName="agregar-usuario" OnSubmit="RegistrarUsuario" Model="nuevoUsuario">
     <InputText class="border-2 mx-2 px-2" placeholder="Introduce tu correo" @bind-Value="nuevoUsuario.Email" required/>

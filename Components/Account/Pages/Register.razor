@@ -14,35 +14,61 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject RoleManager<IdentityRole> RoleManager
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Registro</PageTitle>
 
-<AuthCard Title="Crear cuenta" Subtitle="Un paso y ya estas adentro.">
+<AuthCard Title="Crear cuenta" Subtitle="Regístrate como cliente para reservar viajes.">
     <ChildContent>
         <StatusMessage Message="@Message" />
 
-        <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register" class="space-y-5">
+        <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register" class="space-y-4">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-sm text-red-600" role="alert" />
 
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="ui-field">
+                    <label for="Input.FirstName" class="ui-label">Nombre</label>
+                    <InputText @bind-Value="Input.FirstName" id="Input.FirstName" class="ui-input" />
+                    <ValidationMessage For="() => Input.FirstName" class="text-sm text-red-600" />
+                </div>
+                <div class="ui-field">
+                    <label for="Input.LastName" class="ui-label">Apellido</label>
+                    <InputText @bind-Value="Input.LastName" id="Input.LastName" class="ui-input" />
+                    <ValidationMessage For="() => Input.LastName" class="text-sm text-red-600" />
+                </div>
+            </div>
+
             <div class="ui-field">
-                <label for="Input.Email" class="ui-label">Email</label>
+                <label for="Input.DocumentNumber" class="ui-label">Documento de identidad</label>
+                <InputText @bind-Value="Input.DocumentNumber" id="Input.DocumentNumber" class="ui-input" />
+                <ValidationMessage For="() => Input.DocumentNumber" class="text-sm text-red-600" />
+            </div>
+
+            <div class="ui-field">
+                <label for="Input.PhoneNumber" class="ui-label">Teléfono</label>
+                <InputText @bind-Value="Input.PhoneNumber" id="Input.PhoneNumber" class="ui-input" placeholder="+591 70000000" />
+                <ValidationMessage For="() => Input.PhoneNumber" class="text-sm text-red-600" />
+            </div>
+
+            <div class="ui-field">
+                <label for="Input.Email" class="ui-label">Correo electrónico</label>
                 <InputText @bind-Value="Input.Email" id="Input.Email" class="ui-input"
                            autocomplete="username" aria-required="true" placeholder="nombre@ejemplo.com" />
                 <ValidationMessage For="() => Input.Email" class="text-sm text-red-600" />
             </div>
 
             <div class="ui-field">
-                <label for="Input.Password" class="ui-label">Contrasena</label>
+                <label for="Input.Password" class="ui-label">Contraseña</label>
                 <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="ui-input"
-                           autocomplete="new-password" aria-required="true" placeholder="........" />
+                           autocomplete="new-password" aria-required="true" />
                 <ValidationMessage For="() => Input.Password" class="text-sm text-red-600" />
             </div>
 
             <div class="ui-field">
-                <label for="Input.ConfirmPassword" class="ui-label">Confirmar contrasena</label>
+                <label for="Input.ConfirmPassword" class="ui-label">Confirmar contraseña</label>
                 <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="ui-input"
-                           autocomplete="new-password" aria-required="true" placeholder="........" />
+                           autocomplete="new-password" aria-required="true" />
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-sm text-red-600" />
             </div>
 
@@ -53,7 +79,7 @@
     </ChildContent>
 
     <Footer>
-        <p>Ya tenes cuenta? <a href="Account/Login" class="ui-link">Iniciar sesion</a></p>
+        <p>¿Ya tienes cuenta? <a href="Account/Login" class="ui-link">Iniciar sesión</a></p>
     </Footer>
 </AuthCard>
 
@@ -76,6 +102,11 @@
     public async Task RegisterUser(EditContext editContext)
     {
         var user = CreateUser();
+        user.FirstName = Input.FirstName.Trim();
+        user.LastName = Input.LastName.Trim();
+        user.DocumentNumber = Input.DocumentNumber.Trim();
+        user.PhoneNumber = Input.PhoneNumber?.Trim();
+        user.EmailConfirmed = true;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
@@ -88,27 +119,29 @@
             return;
         }
 
-        Logger.LogInformation("User created a new account with password.");
+        if (!await RoleManager.RoleExistsAsync("Cliente"))
+        {
+            await RoleManager.CreateAsync(new IdentityRole("Cliente"));
+        }
+        await UserManager.AddToRoleAsync(user, "Cliente");
 
-        var userId = await UserManager.GetUserIdAsync(user);
-        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
-
-        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+        Logger.LogInformation("Cliente registrado.");
 
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
-            RedirectManager.RedirectTo(
-                "Account/RegisterConfirmation",
-                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+            var userId = await UserManager.GetUserIdAsync(user);
+            var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+                new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+            await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+            RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
         else
         {
             await SignInManager.SignInAsync(user, isPersistent: false);
-            RedirectManager.RedirectTo(ReturnUrl);
+            RedirectManager.RedirectTo(ReturnUrl ?? "/");
         }
     }
 
@@ -120,8 +153,7 @@
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'.");
         }
     }
 
@@ -136,20 +168,29 @@
 
     private sealed class InputModel
     {
+        [Required(ErrorMessage = "El nombre es obligatorio.")]
+        public string FirstName { get; set; } = "";
+
+        [Required(ErrorMessage = "El apellido es obligatorio.")]
+        public string LastName { get; set; } = "";
+
+        [Required(ErrorMessage = "El documento es obligatorio.")]
+        public string DocumentNumber { get; set; } = "";
+
+        [Phone]
+        public string? PhoneNumber { get; set; }
+
         [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
         public string Email { get; set; } = "";
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "La contraseña debe tener al menos {2} y máximo {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmPassword { get; set; } = "";
     }
 }

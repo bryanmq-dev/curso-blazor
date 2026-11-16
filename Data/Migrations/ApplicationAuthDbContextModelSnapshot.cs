@@ -178,12 +178,24 @@ namespace sharpness_sharp.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DocumentNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
@@ -229,6 +241,292 @@ namespace sharpness_sharp.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Destination", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GalleryImages")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MainImage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TouristInfo")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Destinations");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.ItineraryDay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPackageId");
+
+                    b.ToTable("ItineraryDays");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NumberOfPeople")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TravelDepartureId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("TravelDepartureId");
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("Reservations");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.ReservationStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ChangedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreviousStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("ReservationId", "ChangedAt");
+
+                    b.ToTable("ReservationStatusHistory");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelDeparture", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DepartureDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReservedSeats")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ReturnDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPackageId");
+
+                    b.ToTable("TravelDepartures");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPackageId");
+
+                    b.ToTable("TravelImages");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelPackage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DestinationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DurationNights")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("IncludedServices")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MainImage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NotIncludedServices")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DestinationId");
+
+                    b.ToTable("TravelPackages");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelPackageCategory", b =>
+                {
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TravelPackageId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("TravelPackageCategories");
                 });
 
             modelBuilder.Entity("sharpness_sharp.Data.Models.Cafe", b =>
@@ -387,6 +685,106 @@ namespace sharpness_sharp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.ItineraryDay", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.TravelPackage", "TravelPackage")
+                        .WithMany("ItineraryDays")
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPackage");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Reservation", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.TravelDeparture", "TravelDeparture")
+                        .WithMany("Reservations")
+                        .HasForeignKey("TravelDepartureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("sharpness_sharp.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("TravelDeparture");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.ReservationStatusHistory", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.ApplicationUser", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("sharpness_sharp.Data.Entities.Reservation", "Reservation")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelDeparture", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.TravelPackage", "TravelPackage")
+                        .WithMany("Departures")
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPackage");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelImage", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.TravelPackage", "TravelPackage")
+                        .WithMany("Images")
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPackage");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelPackage", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.Destination", "Destination")
+                        .WithMany("TravelPackages")
+                        .HasForeignKey("DestinationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Destination");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelPackageCategory", b =>
+                {
+                    b.HasOne("sharpness_sharp.Data.Entities.Category", "Category")
+                        .WithMany("TravelPackageCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sharpness_sharp.Data.Entities.TravelPackage", "TravelPackage")
+                        .WithMany("TravelPackageCategories")
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("TravelPackage");
+                });
+
             modelBuilder.Entity("sharpness_sharp.Data.Models.Ventas", b =>
                 {
                     b.HasOne("sharpness_sharp.Data.Models.Cafe", "Cafe")
@@ -396,7 +794,7 @@ namespace sharpness_sharp.Migrations
                         .IsRequired();
 
                     b.HasOne("sharpness_sharp.Data.ApplicationUser", "Cliente")
-                        .WithMany("lstVentas")
+                        .WithMany()
                         .HasForeignKey("Id_Cliente")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -406,9 +804,35 @@ namespace sharpness_sharp.Migrations
                     b.Navigation("Cliente");
                 });
 
-            modelBuilder.Entity("sharpness_sharp.Data.ApplicationUser", b =>
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Category", b =>
                 {
-                    b.Navigation("lstVentas");
+                    b.Navigation("TravelPackageCategories");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Destination", b =>
+                {
+                    b.Navigation("TravelPackages");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.Reservation", b =>
+                {
+                    b.Navigation("StatusHistory");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelDeparture", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("sharpness_sharp.Data.Entities.TravelPackage", b =>
+                {
+                    b.Navigation("Departures");
+
+                    b.Navigation("Images");
+
+                    b.Navigation("ItineraryDays");
+
+                    b.Navigation("TravelPackageCategories");
                 });
 #pragma warning restore 612, 618
         }

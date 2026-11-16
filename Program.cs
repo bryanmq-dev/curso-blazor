@@ -1,5 +1,6 @@
 ﻿using sharpness_sharp.Components;
 using sharpness_sharp.Config;
+using sharpness_sharp.Features.Reservations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.UseHttpClient(builder.Configuration);
 builder.Services.UseAuth(builder.Configuration);
 
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<ReservationService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

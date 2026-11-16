@@ -23,6 +23,13 @@
                         </div>
                     </NotAuthorized>
                     <Authorized>
+                        <AuthorizeView Roles="Cliente" Context="clientContext">
+                            <Authorized>
+                                <div class="ui-btn-primary ui-btn mx-2">
+                                    <NavLink href="reservas">Mis reservas</NavLink>
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
                         <div class="ui-btn-primary ui-btn mx-2">
                             <NavLink href="Account/Manage"> @context.User.Identity?.Name
                             </NavLink>
