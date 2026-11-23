@@ -166,6 +166,14 @@ namespace sharpness_sharp.Config
             var demoUser = await userManager.FindByEmailAsync(auth.DemoUserEmail!);
             if (demoUser is null)
             {
+                if (string.IsNullOrWhiteSpace(auth.DemoUserPassword))
+                {
+                    log.LogWarning(
+                        "SeedAuth: no se sembraron los datos demo porque falta Auth:DemoUserPassword. " +
+                        "Definilo con la variable de entorno Auth__DemoUserPassword para crearlos.");
+                    return;
+                }
+
                 demoUser = new ApplicationUser
                 {
                     UserName = auth.DemoUserEmail,
